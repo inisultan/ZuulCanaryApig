@@ -1,0 +1,29 @@
+ #Will start the gateway server @8089
+server:
+  port: 8089
+
+#Ribbon is auto integrated with Zuul and for this exercise we are not using that.
+ribbon:
+  eureka:
+    enabled: false
+
+#Zuul routes. Here for /listall path, we are routing to localhost:8089 with no extra path after that.
+zuul:
+  routes:
+    demo-listall:
+      path: /listall
+      serviceId: mongo-service
+      stripPrefix: false
+    demo-create:
+      path: /create
+      serviceId: mongo-service
+
+mongo-service:
+  ribbon:
+    NIWSServerListClassName: com.netflix.loadbalancer.ConfigurationBasedServerList
+    NFLoadBalancerRuleClassName: zuul.WhitelistLoadBalancer
+    listOfServers: http://localhost:8080, http://localhost:8081 #intentionaly put non-existing 8081 service to test load balancer 
+    ConnectTimeout: 1000
+    ReadTimeout: 3000
+    MaxTotalHttpConnections: 500
+    MaxConnectionsPerHost: 100
